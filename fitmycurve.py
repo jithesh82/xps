@@ -34,7 +34,7 @@ class fitLinear(fitFunctions):
     def __init__(self, x, y):
         fitFunctions.__init__(self, x, y)
 
-    def equation(self,x, m, C):
+    def equation(self, x, m, C):
         # linear euation of the form
         # y = mx + C
         # m --> slope
@@ -50,7 +50,7 @@ class fitGaussian(fitFunctions):
     def __init__(self):
         fitFunctions.__init__(self)
 
-    def equation(x, A, B, C):
+    def equation(self, x, A, B, C):
         # fits guassian curve of the form
         # f(x) = A*e^ -(x-B)^2 / (2*C^2)
         return [A * math.exp(- (value - B)^2 / (2 * C^2) ) \
