@@ -1,8 +1,12 @@
+#!/usr/bin/env python3
+
+# current version - rewrite to incorporate
+# commandline arguments
 # defines different possible fit functions
 # uses scipy.optimize.curve_fit to fit the
 # x, y data to deduce the parameters
 
-import scipy
+import scipy, os, math
 from scipy import optimize
 curve_fit = optimize.curve_fit
 
@@ -47,47 +51,67 @@ class fitGaussian(fitFunctions):
     Defines Gaussian equation for fitting
     f(x) = A*e^ -(x-B)^2 / (2*C^2)
     """
-    def __init__(self):
-        fitFunctions.__init__(self)
+    def __init__(self, x, y):
+        fitFunctions.__init__(self, x, y)
 
     def equation(self, x, A, B, C):
         # fits guassian curve of the form
         # f(x) = A*e^ -(x-B)^2 / (2*C^2)
-        return [A * math.exp(- (value - B)^2 / (2 * C^2) ) \
-            for value in x]
+        return [A * math.exp(- (value - B)**2 / (2 * C**2) ) for value in x]
 
 if __name__ == '__main__':
     """ perform test fit
     """
-    import random
+    import random, sys
     from matplotlib import pyplot as plt
-    # linear test equation
-    f = lambda x: 5 * x + 10
+
     r = random.random
-    # x data
-    x = list(range(10))
-    # y data introducting noise
-    y = [f(X) + r() * 2 for X in x]
-    # x, y scatter plot of the test data
-    plt.plot(x, y, '*')
-    # create a linear fitting instance
-    I = fitLinear(x, y)
-    # perform fit
-    popt = I.run()
-    # popt[0], popt[1] ... gives the optimized
-    # fit parameter in the order defined in
-    # function "equation"
-    print("optimized fit parameters: ", popt)
-    # define the fitted y curve
-    yfit = lambda x: popt[0] * x + popt[1]
-    # fitted y values
-    Y = [yfit(X) for X in x]
-    # plot fitted values
-    plt.plot(x, Y)
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('Linear Curve Fit')
-    plt.legend(['data', 'fitted'])
-    plt.show()
 
-
+    #choice = sys.argv[2]
+    if sys.argv[1] == '-h':
+        print('Usage:  fitmycurve.py data.csv 1')
+        print('1 --> linear \n 2 --> guassian')
+    if sys.argv[2] == 1:
+        # linear test equation
+        f = lambda x: 5 * x + 10
+        # x data
+        x = list(range(10))
+        # y data introducting noise
+        y = [f(X) + r() * 2 for X in x]
+        # x, y scatter plot of the test data
+        #plt.plot(x, y, '*')
+        # create a linear fitting instance
+        I = fitLinear(x, y)
+        # perform fit
+        popt = I.run()
+        # popt[0], popt[1] ... gives the optimized
+        # fit parameter in the order defined in
+        # function "equation"
+        print("optimized fit parameters: ", popt)
+        # define the fitted y curve
+        yfit = lambda x: popt[0] * x + popt[1]
+        # fitted y values
+        Y = [yfit(X) for X in x]
+        # plot fitted values
+        plt.plot(x, Y)
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Linear Curve Fit')
+        plt.legend(['data', 'fitted'])
+        plt.show()
+    else:
+        from xyfromcsv import xyfromcsv
+        from plot_csv import plotCSV
+        #plotCSV('c.csv')
+        x, y = xyfromcsv('c.csv')
+        plt.plot(x, y) ; plt.show()
+#        I = fitGaussian(x, y)
+#        popt = I.run()
+#        print(popt)
+        f = lambda x: 5 * math.exp( - (x - 60) ** 2 / (2 * 10 ** 2) )
+        y = [f(x) + r() for x in range(100)]
+        plt.plot(range(100), y, '*')
+        plt.show()
+        I = fitGaussian(range(100), y)
+        popt = I.run()
+        print(popt)
