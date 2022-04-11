@@ -28,7 +28,7 @@ class fitFunctions:
 
     def run(self):
         popt, _ = curve_fit(self.equation, self.x, \
-                self.y)
+                self.y, bounds=([20000, 284, 0.5], [25000,285, 1]))
         return popt
 
 class fitLinear(fitFunctions):
@@ -73,11 +73,8 @@ if __name__ == '__main__':
         print('1 --> linear \n 2 --> guassian')
     if sys.argv[2] == 1:
         # linear test equation
-        f = lambda x: 5 * x + 10
-        # x data
-        x = list(range(10))
-        # y data introducting noise
-        y = [f(X) + r() * 2 for X in x]
+        from testcurves import Linear
+        (x, y) = Linear()
         # x, y scatter plot of the test data
         #plt.plot(x, y, '*')
         # create a linear fitting instance
@@ -104,14 +101,26 @@ if __name__ == '__main__':
         from plot_csv import plotCSV
         #plotCSV('c.csv')
         x, y = xyfromcsv('c.csv')
-        plt.plot(x, y) ; plt.show()
+        #plt.plot(x, y) ; plt.show()
 #        I = fitGaussian(x, y)
 #        popt = I.run()
 #        print(popt)
-        f = lambda x: 5 * math.exp( - (x - 60) ** 2 / (2 * 10 ** 2) )
-        y = [f(x) + r() for x in range(100)]
-        plt.plot(range(100), y, '*')
-        plt.show()
-        I = fitGaussian(range(100), y)
+        #f = lambda x: 5 * math.exp( - (x - 60) ** 2 / (2 * 10 ** 2) )
+        #y = [f(x) + r() for x in range(100)]
+        #plt.plot(range(100), y, '*')
+        #plt.show()
+        from cropmygraph import cropMyGraph
+        (x, y) = cropMyGraph('c.csv')
+        from substractbackground import bgLinear
+        Ibg = bgLinear(x, y, 282.43, 600, 288.28, 2110)
+        (x, y) = Ibg.substract()
+        from plotmeagraph import Plot
+        Plot(x, y).plot()
+        I = fitGaussian(x, y)
         popt = I.run()
         print(popt)
+        f = lambda x: popt[0] * math.exp( - (x - popt[1]) ** 2 / (2 * popt[2] ** 2) )
+        y = [f(X) for X in x]
+        Plot(x, y).plot()
+        wait = input()
+
