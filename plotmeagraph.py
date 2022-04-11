@@ -3,7 +3,7 @@
 from matplotlib import pyplot as plt
 
 class Plot:
-    def __init__(self, x, y, xlabel='x',\ 
+    def __init__(self, x, y, xlabel='x',\
             ylabel='y', legend=[], title='Graph x-y'):
         self.x = x
         self.y = y
@@ -13,7 +13,7 @@ class Plot:
         self.title = title
 
     def plot(self):
-        plt.plot(x, y)
+        plt.plot(self.x, self.y)
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
         plt.legend(self.legend)
