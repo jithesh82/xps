@@ -29,7 +29,7 @@ def multiGauss(x, *par):
         8. list comprehend the sum over all element in x data
     """
     # number of peaks to fit
-    N = 1 #3
+    N = 2 #3
     # number of unknown parameters in the equation
     n = 3 #3
     # (i, j, k) for three parameters
@@ -45,13 +45,14 @@ def multiGauss(x, *par):
     # split [0..9] --> [0, 1, 2], [3, 4, 5] etc.
     for i in range(0, n * N, 3):
         # split_ -->  [0, 1, 2] etc.
-        split_ = list(range(i + 3))
+        split_ = list(range(i, i + 3))
         # split --> [[0, 1, 2], ...]
         split.append(split_)
     # create multi-equation with multiple gaussian
     # terms as a sum
     
     print(split)
+    #pdb.set_trace()
 
     def multiterm(X):
         return sum((term(X, i, j, k) for (i, j, k) in \
@@ -62,7 +63,7 @@ def multiGauss(x, *par):
     return [multiterm(X) for X in x]
 
 x = range(1, 100)
-y = multiGauss(x, 5, 50, 5)
+y = multiGauss(x, 5, 50, 5, 5, 30, 5)
 from plotmeagraph import Plot
 Plot(x, y).plot()
 print(y)
