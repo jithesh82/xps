@@ -40,7 +40,8 @@ def multiGauss(x, *par):
     yet having heard none understands this at all'
     """
     # number of peaks to fit
-    N = 3 #3
+    # make N global; N = 3 #3
+
     # number of unknown parameters in the equation
     n = 3 #3
     # (i, j, k) for three parameters
@@ -77,8 +78,35 @@ def multiGauss(x, *par):
     # sum the terms over the entire x range 
     return [multiterm(X) for X in x]
 
+
+# global N --> number of peaks to fit
+N = 3
 x = range(1, 100)
+pwidth = 5
+pheight = 5
+
 y = multiGauss(x, 5, 50, 5, 5, 30, 5, 5, 70, 5)
 from plotmeagraph import Plot
-Plot(x, y).plot()
+#Plot(x, y).plot()
 print(y)
+
+import random
+r = random.random
+
+from matplotlib import pyplot as plt
+
+plt.ion()
+
+y = [y_ + r() for y_ in y]
+Plot(x, y).plot()
+
+from scipy.optimize import curve_fit
+
+popt_, _ = curve_fit(multiGauss, x, y, p0=[5, 50, 5, 5, 30, 5, 5, 70, 5])
+print(popt_)
+
+yfit = multiGauss(x, *popt_)
+
+Plot(x, yfit).plot()
+
+input()
