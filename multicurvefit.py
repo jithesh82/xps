@@ -27,9 +27,20 @@ def multiGauss(x, *par):
         7. use the chunks to create terms and use sum func 
             to sum it up
         8. list comprehend the sum over all element in x data
+
+    When a piece of code like this function works I just 
+    remember the verse from Bhagavat Gita
+       aash-charya-vat pasyati kash-chid enam
+       aash-charyavad vadati tathaiva chaanyaha
+       aashcharya-vach chainyam anyaha srunoti
+       shrutvapyenam veda na chaiva kash-chit || 2.29 ||
+    'One sees this Self as a wonder, 
+    another speaks of it in wonder, 
+    another hears of it as a wonder;
+    yet having heard none understands this at all'
     """
     # number of peaks to fit
-    N = 2 #3
+    N = 3 #3
     # number of unknown parameters in the equation
     n = 3 #3
     # (i, j, k) for three parameters
@@ -45,6 +56,7 @@ def multiGauss(x, *par):
     # split [0..9] --> [0, 1, 2], [3, 4, 5] etc.
     for i in range(0, n * N, 3):
         # split_ -->  [0, 1, 2] etc.
+        # range(0, 3), range(3, 6) etc.
         split_ = list(range(i, i + 3))
         # split --> [[0, 1, 2], ...]
         split.append(split_)
@@ -55,6 +67,9 @@ def multiGauss(x, *par):
     #pdb.set_trace()
 
     def multiterm(X):
+        """
+        sum all the terms in the gaussian
+        """
         return sum((term(X, i, j, k) for (i, j, k) in \
                 split))    
 
@@ -63,7 +78,7 @@ def multiGauss(x, *par):
     return [multiterm(X) for X in x]
 
 x = range(1, 100)
-y = multiGauss(x, 5, 50, 5, 5, 30, 5)
+y = multiGauss(x, 5, 50, 5, 5, 30, 5, 5, 70, 5)
 from plotmeagraph import Plot
 Plot(x, y).plot()
 print(y)
