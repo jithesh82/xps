@@ -1,3 +1,7 @@
+"""
+my peak fitting suite
+"""
+
 # fit multiple peaks
 
 import math
@@ -98,7 +102,7 @@ from matplotlib import pyplot as plt
 plt.ion()
 
 y = [y_ + r() for y_ in y]
-Plot(x, y).plot()
+#Plot(x, y).plot()
 
 from scipy.optimize import curve_fit
 
@@ -107,6 +111,52 @@ print(popt_)
 
 yfit = multiGauss(x, *popt_)
 
+#Plot(x, yfit).plot()
+
+# open saved xps data - c1s - already bg substracted
+import pickle
+(x, y) = pickle.load(open('fitsample.pkl', 'rb'))
+Plot(x, y).plot()
+
+# for catching mouse events from graph
+from matplotlib.backend_bases import MouseButton
+
+# to save peak position and height to use as guess
+clicked =[]
+
+# to catch right mouse click - and save x,y data
+def on_click(event):
+    if event.button is MouseButton.LEFT:
+        print('data coords: ', event.xdata, event.ydata)
+        clicked.append((event.xdata, event.ydata))
+
+# connect button press event
+plt.connect('button_press_event', on_click)
+
+
+# guesses for 3 peaks to fit
+peaks = [(284.7918548387097, 23678.924688024308), (286.47733870967744, 5252.790677685957), (288.9612096774194, 2075.8710207310705)]
+
+# guesses for 3 peaks to fit (height, pos, width)
+g1 = (peaks[0][1], peaks[0][0], 0.5)
+g2 = (peaks[1][1], peaks[1][0], 0.5)
+g3 = (peaks[2][1], peaks[2][0], 0.5)
+
+print('clicked: \n', clicked)
+print(*g1, *g2, *g3)
+
+# guessed peaks
+ytofit = multiGauss(x, *g1, *g2, *g3)
+Plot(x, ytofit).plot()
+
+# perform fit
+popt, _ = curve_fit(multiGauss, x, y, p0=[*g1, *g2, *g3])
+
+# fitted result
+yfit = multiGauss(x, *popt)
 Plot(x, yfit).plot()
 
-input()
+# wait - plt.ion is on - otherwise windows disappears
+input('wait: ')
+
+print('opt: \n', popt)
