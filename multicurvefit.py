@@ -51,9 +51,9 @@ def multiGauss(x, *par):
     # (i, j, k) for three parameters
     def term(X, i, j, k): 
         return par[i] * math.exp(- (X - par[j])**2 / (2 * par[k]**2))
-    print(par)
-    print(x)
-    print('term: ', term(2, 0, 1, 2))
+    #print(par)
+    #print(x)
+    #print('term: ', term(2, 0, 1, 2))
 
     #pdb.set_trace()
 
@@ -68,7 +68,7 @@ def multiGauss(x, *par):
     # create multi-equation with multiple gaussian
     # terms as a sum
     
-    print(split)
+    #print(split)
     #pdb.set_trace()
 
     def multiterm(X):
@@ -78,48 +78,37 @@ def multiGauss(x, *par):
         return sum((term(X, i, j, k) for (i, j, k) in \
                 split))    
 
-    print('multiterm2: ', multiterm(2))
+    #print('multiterm2: ', multiterm(2))
     # sum the terms over the entire x range 
     return [multiterm(X) for X in x]
 
 
 # global N --> number of peaks to fit
 N = 3
-x = range(1, 100)
-pwidth = 5
-pheight = 5
 
-y = multiGauss(x, 5, 50, 5, 5, 30, 5, 5, 70, 5)
 from plotmeagraph import Plot
-#Plot(x, y).plot()
-print(y)
-
-import random
-r = random.random
-
 from matplotlib import pyplot as plt
-
 plt.ion()
-
-y = [y_ + r() for y_ in y]
-#Plot(x, y).plot()
-
 from scipy.optimize import curve_fit
-
-popt_, _ = curve_fit(multiGauss, x, y, p0=[5, 50, 5, 5, 30, 5, 5, 70, 5])
-print(popt_)
-
-yfit = multiGauss(x, *popt_)
-
-#Plot(x, yfit).plot()
 
 # open saved xps data - c1s - already bg substracted
 import pickle
 (x, y) = pickle.load(open('fitsample.pkl', 'rb'))
-Plot(x, y).plot()
+Plot(x, y, linestyle='dotted').plot()
 
 # for catching mouse events from graph
 from matplotlib.backend_bases import MouseButton
+
+class savePeaks:
+    """
+    save peaks as clicked
+    create instances and save it in a list
+    """
+    def __init__(self, pos, height):
+        # pos --> position of the peak
+        # height --> height of the peak
+        self.pos = pos
+        self.height = height
 
 # to save peak position and height to use as guess
 clicked =[]
@@ -133,24 +122,41 @@ def on_click(event):
 # connect button press event
 plt.connect('button_press_event', on_click)
 
+input('wait: ')
 
 # guesses for 3 peaks to fit
-peaks = [(284.7918548387097, 23678.924688024308), (286.47733870967744, 5252.790677685957), (288.9612096774194, 2075.8710207310705)]
+#peaks = [(284.7918548387097, 23678.924688024308), (286.47733870967744, 5252.790677685957), (288.9612096774194, 2075.8710207310705)]
+peaks = clicked
 
 # guesses for 3 peaks to fit (height, pos, width)
 g1 = (peaks[0][1], peaks[0][0], 0.5)
 g2 = (peaks[1][1], peaks[1][0], 0.5)
 g3 = (peaks[2][1], peaks[2][0], 0.5)
 
-print('clicked: \n', clicked)
+width_guess = 0.5
+
+# no. of peaks to fit
+N = len(clicked)
+
+# (x, y) --> clicked(1,0)
+guess = [(clicked[i][1], clicked[i][0], width_guess) for \
+        i in range(len(clicked))]
+
+# unpack all (a, b, c) in guess
+guess = [g  for item in guess for g in item]
+
 print(*g1, *g2, *g3)
 
 # guessed peaks
-ytofit = multiGauss(x, *g1, *g2, *g3)
+#ytofit = multiGauss(x, *g1, *g2, *g3)
+ytofit = multiGauss(x, *guess)
 Plot(x, ytofit).plot()
 
+#pdb.set_trace()
+
 # perform fit
-popt, _ = curve_fit(multiGauss, x, y, p0=[*g1, *g2, *g3])
+#popt, _ = curve_fit(multiGauss, x, y, p0=[*g1, *g2, *g3])
+popt, _ = curve_fit(multiGauss, x, y, p0=[*guess])
 
 # fitted result
 yfit = multiGauss(x, *popt)
@@ -160,3 +166,5 @@ Plot(x, yfit).plot()
 input('wait: ')
 
 print('opt: \n', popt)
+print('clicked: \n', clicked)
+print('guess :\n', guess)
