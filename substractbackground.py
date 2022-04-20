@@ -53,18 +53,21 @@ class bgLinear(backGround):
         y = [f(X) for X in self.x]
         return y
 
-# to save the clicked data from the graph
-#clicked = []
-def onClick(event):
+# saves the clicked x, y data
+class clickMe:
     """
-    when right mouse button is clicked update 
-    the `clicked` list with x, y data from
-    the graph --> the end points of background
+    saves the clicked co-ordinates in `clicked`
+    aim: to removed `clicked` from global scope
     """
-    if event.button is MouseButton.LEFT:
-        # the x and y are in opposite order
-        clicked.append((event.xdata, event.ydata))
-        print((event.xdata, event.ydata))
+    def __init__(self):
+        self.clicked = []
+    def on_click(self, event):
+        """
+        To save the x, y data from right mouse click
+        """
+        if event.button is MouseButton.LEFT:
+            self.clicked.append((event.xdata, event.ydata))
+            print((event.xdata, event.ydata))
 
 if __name__ == '__main__':
 
@@ -78,11 +81,11 @@ if __name__ == '__main__':
 
     #pdb.set_trace()
 
-    # initialize clicked - same variable used 
-    # also in cropmygraph and everywhere - Ha 
-    clicked = []
+    # create a clickMe instance to save clicks
+    I = clickMe()
+    I.clicked = []
     # catch mouse clicks
-    plt.connect('button_press_event', onClick)
+    plt.connect('button_press_event', I.on_click)
     
     # plot the graph after cropping to choose the 
     # end points for background
@@ -96,7 +99,7 @@ if __name__ == '__main__':
 
     # pass in the clicked co-ordinates to make bg
     # create a background fitting instance
-    I = bgLinear(x, y, *clicked[0], *clicked[1])
+    I = bgLinear(x, y, *I.clicked[0], *I.clicked[1])
     # substract the background and get the data
     (x, y) = I.substract()
 
