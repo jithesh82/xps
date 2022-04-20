@@ -44,8 +44,8 @@ class bgLinear(backGround):
         return y
 
 # to save the clicked data from the graph
-clicked = []
-def on_click(event):
+#clicked = []
+def onClick(event):
     """
     when right mouse button is clicked update 
     the `clicked` list with x, y data from
@@ -57,35 +57,58 @@ def on_click(event):
         print((event.xdata, event.ydata))
 
 if __name__ == '__main__':
-    # self test code
-    # x, y pandas series from csv file
-    from xyfromcsv import xyfromcsv
-    (x, y) = xyfromcsv('c.csv')
-    # create a linear background instance
-    I = bgLinear(x, y, 280, 460, 297, 1600)
-    # substract linear background
-    (x, y) = I.substract()
     # import easy plotting utility and plot
     from plotmeagraph import Plot
-    Plot(x, y).plot()
+
     # set up matplotlib to cach mouse events
     from matplotlib import pyplot as plt
     from matplotlib.backend_bases import MouseButton
-    plt.connect('button_press_event', on_click)
     # retain access to stdin/out
-    plt.ion()
-    #from cropmygraph import cropMyGraph
-    from plot_csv import plotCSV
-    plotCSV('o1s.csv')
+    #plt.ion()
+
+    # crop the graph as needed for bg fit
+    from cropmygraph import cropMyGraph
+    # x, y are pd series
+    (x, y) = cropMyGraph('o1s.csv')
+
+    import pdb
+    #pdb.set_trace()
+
+    #from plot_csv import plotCSV
+    #plotCSV('o1s.csv')
+    #Plot(x, y).plot()
     # wait for clicking the bg endpoints
-    input('wait: ')
+    #input('wait: ')
     # get x, y data from csv file
-    (x, y) = xyfromcsv('o1s.csv')
-    # create a background fitting instance
+    #(x, y) = xyfromcsv('o1s.csv')
+
+    # clear the current figure
+    plt.clf()
+
+    #pdb.set_trace()
+
+    # initialize clicked - same variable used 
+    # also in cropmygraph and everywhere - Ha 
+    clicked = []
+    # catch mouse clicks
+    plt.connect('button_press_event', onClick)
+    
+    # plot the graph after cropping to choose the 
+    # end points for background
+    Plot(x, y).plot()
+
+    #pdb.set_trace()
+
+    input('wait for click:  \n')
+
+    #pdb.set_trace()
+
     # pass in the clicked co-ordinates to make bg
+    # create a background fitting instance
     I = bgLinear(x, y, *clicked[0], *clicked[1])
     # substract the background and get the data
     (x, y) = I.substract()
+
     # plot the substracted x, y data
     Plot(x,y).plot()
     # waits - graph window disapears otherwise
