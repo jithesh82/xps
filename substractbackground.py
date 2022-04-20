@@ -1,5 +1,15 @@
 # creates and substract background 
 
+# import easy plotting utility and plot
+from plotmeagraph import Plot
+# set up matplotlib to cach mouse events
+from matplotlib import pyplot as plt
+from matplotlib.backend_bases import MouseButton
+# crop the graph as needed for bg fit
+from cropmygraph import cropMyGraph
+import pdb
+import pickle
+
 class backGround:
 
     """
@@ -57,30 +67,11 @@ def onClick(event):
         print((event.xdata, event.ydata))
 
 if __name__ == '__main__':
-    # import easy plotting utility and plot
-    from plotmeagraph import Plot
 
-    # set up matplotlib to cach mouse events
-    from matplotlib import pyplot as plt
-    from matplotlib.backend_bases import MouseButton
-    # retain access to stdin/out
-    #plt.ion()
-
-    # crop the graph as needed for bg fit
-    from cropmygraph import cropMyGraph
     # x, y are pd series
     (x, y) = cropMyGraph('o1s.csv')
 
-    import pdb
     #pdb.set_trace()
-
-    #from plot_csv import plotCSV
-    #plotCSV('o1s.csv')
-    #Plot(x, y).plot()
-    # wait for clicking the bg endpoints
-    #input('wait: ')
-    # get x, y data from csv file
-    #(x, y) = xyfromcsv('o1s.csv')
 
     # clear the current figure
     plt.clf()
@@ -112,4 +103,7 @@ if __name__ == '__main__':
     # plot the substracted x, y data
     Plot(x,y).plot()
     # waits - graph window disapears otherwise
-    input('wait: ')
+
+    save = input('y for save: ')
+    if save == 'y':
+        pickle.dump((x, y), open('o1s.pkl', 'wb'))
