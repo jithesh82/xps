@@ -4,8 +4,10 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
+# get access to stdin/out
 plt.ion()
+import sys
+from matplotlib.backend_bases import MouseButton
 
 def cropIt(df, xmin, xmax):
     # exclude values less than xmin
@@ -15,20 +17,26 @@ def cropIt(df, xmin, xmax):
     return df
 
 # saves the clicked x, y data
-clicked = []
-def on_click(event):
+class clickMe:
     """
-    To save the x, y data from right mouse click
+    saves the clicked co-ordinates in `clicked`
+    aim: to removed `clicked` from global scope
     """
-    if event.button is MouseButton.LEFT:
-        clicked.append((event.xdata, event.ydata))
-        print((event.xdata, event.ydata))
-
-# set up matplotlib for catching mouse clicks
-from matplotlib.backend_bases import MouseButton
-plt.connect('button_press_event', on_click)
+    def __init__(self):
+        self.clicked = []
+    def on_click(self, event):
+        """
+        To save the x, y data from right mouse click
+        """
+        if event.button is MouseButton.LEFT:
+            self.clicked.append((event.xdata, event.ydata))
+            print((event.xdata, event.ydata))
 
 def cropMyGraph(data):
+    # create a clickMe instance to store clicks
+    I = clickMe()
+    # set up matplotlib for catching mouse clicks
+    plt.connect('button_press_event', I.on_click)
     # read the csv file
     df = pd.read_csv(data)
     # picking up first two columns of df
@@ -38,18 +46,18 @@ def cropMyGraph(data):
     df.columns = ['x', 'y']
     while True:
         # turn stdin on
-        #plt.ion()
         plt.plot(df['x'], df['y'])
+        plt.show()
         # wait to choose the end points
-        wait = input('q to quit: ')
+        wait = input('choose crop points and press enter; then q to quit: \n')
         # breakout of the infinite loop
         if wait == 'q': break
         # visualy inspect graph and click suitable
         # crop points
-        #xmin = input('xmin: ')
-        #xmax = input('xmax: ')
-        xmin = clicked[0][0]
-        xmax = clicked[1][0]
+        xmin = I.clicked[0][0]
+        xmax = I.clicked[1][0]
+        # clear I.clicked for further use
+        I.clicked = []
         # call cropIt with suitable crop points
         df = cropIt(df, float(xmin), float(xmax))
 
@@ -66,4 +74,4 @@ if __name__ == '__main__':
         # the returned df will be a cropped graph
         data = sys.argv[1]
         # data --> o1s.csv 
-        df = cropMyGraph(data)
+        (df['x'], df['y']) = cropMyGraph(data)
