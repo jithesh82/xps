@@ -43,6 +43,18 @@ class bgLinear(backGround):
         y = [f(X) for X in self.x]
         return y
 
+# to save the clicked data from the graph
+clicked = []
+def on_click(event):
+    """
+    when right mouse button is clicked update 
+    the `clicked` list with x, y data from
+    the graph --> the end points of background
+    """
+    if event.button is MouseButton.LEFT:
+        # the x and y are in opposite order
+        clicked.append((event.xdata, event.ydata))
+        print((event.xdata, event.ydata))
 
 if __name__ == '__main__':
     # self test code
@@ -56,3 +68,25 @@ if __name__ == '__main__':
     # import easy plotting utility and plot
     from plotmeagraph import Plot
     Plot(x, y).plot()
+    # set up matplotlib to cach mouse events
+    from matplotlib import pyplot as plt
+    from matplotlib.backend_bases import MouseButton
+    plt.connect('button_press_event', on_click)
+    # retain access to stdin/out
+    plt.ion()
+    #from cropmygraph import cropMyGraph
+    from plot_csv import plotCSV
+    plotCSV('o1s.csv')
+    # wait for clicking the bg endpoints
+    input('wait: ')
+    # get x, y data from csv file
+    (x, y) = xyfromcsv('o1s.csv')
+    # create a background fitting instance
+    # pass in the clicked co-ordinates to make bg
+    I = bgLinear(x, y, *clicked[0], *clicked[1])
+    # substract the background and get the data
+    (x, y) = I.substract()
+    # plot the substracted x, y data
+    Plot(x,y).plot()
+    # waits - graph window disapears otherwise
+    input('wait: ')
