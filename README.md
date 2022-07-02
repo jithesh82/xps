@@ -9,7 +9,7 @@ The testdata.xlsx is the excel xps data file.  The first two columns are respect
 The testguess.xlsx contains the guess values for the peaks.  The first three columns are respectively intensity, binding energy and peak width (fwhm).
 
 ## Screenshots
-![alt text](https://github.com/jithesh82/cocktail_recipes/blob/main/fitexample.png)
+![alt text](https://github.com/jithesh82/xps/blob/main/fitexample.png)
 
 ## References
 Test data:  Mendeley xps data.  
