@@ -2,7 +2,13 @@
 A python code to fit background substracted x-ray photoelectron spectra (XPS).
 
 ## Usage
-`python3 fitxps.py testdata.xlsx testguess.xlsx`
+To choose data region and background substract:
+
+`python3 processdata.py testdata.xlsx`
+
+To fit:
+
+`python3 processdataandfit.py testdata.xlsx testguess.xlsx`
 
 The testdata.xlsx is the excel xps data file.  The first two columns are respectively binding energy and intensity.  The spectra is assumed to be background substracted and corrected for any charging.
 

@@ -103,9 +103,10 @@ if __name__ == '__main__':
     try:
         dfile = sys.argv[1]
         pfile = sys.argv[2]
-        ProcessAndFit(dfile, pfile)()
+        #ProcessAndFit(dfile, pfile)()
     except Exception:
         print('Looking for files in the current working directory')
+        print(sys.exc_info())
         if os.path.exists('testdata.xlsx') and \
             os.path.exists('testguess.xlsx'):
                 ProcessAndFit('testdata.xlsx', 'testguess.xlsx')()
@@ -113,3 +114,5 @@ if __name__ == '__main__':
             print("Usage:  python3 data.xlsx param.xlsx")
             print("OR put the data and parameter file in the \
                     same directory as .py file")
+    else:
+        ProcessAndFit(dfile, pfile)()
