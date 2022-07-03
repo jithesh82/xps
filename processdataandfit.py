@@ -5,11 +5,19 @@
 # v2 - added readData to the class
 # v3 - clean up
 # v4 - working fit code
+# v5 - adding commandline execution logic
+# v6 - working code - not clean
+# v7 - working code
+# v8 - clean up
+
 
 import pandas as pd
 from multi_gauss import multiGauss as Gauss
 from scipy.optimize import curve_fit as curveFit
 from matplotlib import pyplot as plt
+import sys
+import os
+import pdb
 
 class ProcessAndFit:
     """
@@ -51,18 +59,32 @@ class ProcessAndFit:
           36303   238.2    0.5
         """
         df = pd.read_excel(self.pfile)
-        guess = [x for row in df.iloc for x in row]
-        return guess
+        # guess values 
+        dfg = df[[df.columns[0], df.columns[1], \
+                df.columns[2]]].copy()
+        # lower bound
+        df_lbound = df[[df.columns[3], df.columns[4], \
+                df.columns[5]]].copy()
+        # upper bound
+        df_ubound = df[[df.columns[6], df.columns[7], \
+                df.columns[8]]].copy()
+        # guess
+        guess = [x for row in dfg.iloc for x in row]
+        # lower bound
+        lbounds = [x for row in df_lbound.iloc for x in row]
+        # upper bound
+        ubounds = [x for row in df_ubound.iloc for x in row]
+        #pdb.set_trace()
+        return guess, lbounds, ubounds
 
     def fit(self):
         """
         performs fit
         """
         x, y = self.readData()
-        guess = self.readParam()
+        guess, lbounds, ubounds = self.readParam()
         ytofit = Gauss(x, *guess)
-        # bound -> lower and upper bound of fitting params
-        bounds = (0, [20000] * len(guess))
+        bounds = (lbounds, ubounds)
         popt, _ = curveFit(Gauss, x, y, p0=[*guess], bounds=bounds)
         yfit = Gauss(x, *popt)
         plt.plot(x, y)
@@ -78,4 +100,16 @@ class ProcessAndFit:
 
 
 if __name__ == '__main__':
-    ProcessAndFit('testdata.xlsx', 'testguess.xlsx')()
+    try:
+        dfile = sys.argv[1]
+        pfile = sys.argv[2]
+        ProcessAndFit(dfile, pfile)()
+    except Exception:
+        print('Looking for files in the current working directory')
+        if os.path.exists('testdata.xlsx') and \
+            os.path.exists('testguess.xlsx'):
+                ProcessAndFit('testdata.xlsx', 'testguess.xlsx')()
+        else:
+            print("Usage:  python3 data.xlsx param.xlsx")
+            print("OR put the data and parameter file in the \
+                    same directory as .py file")
