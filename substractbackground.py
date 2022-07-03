@@ -1,14 +1,16 @@
 # creates and substract background 
+# v11 - bakup
+# v12 - working code - updated __name__ == block
 
 # import easy plotting utility and plot
 from plotmeagraph import Plot
-# set up matplotlib to cach mouse events
 from matplotlib import pyplot as plt
-from matplotlib.backend_bases import MouseButton
 # crop the graph as needed for bg fit
-from cropmygraph import cropMyGraph
-import pdb
-import pickle
+import sys
+import os
+from xyfromcsv import xyfromcsv
+from xyfromexcel import xyfromexcel
+import pandas as pd
 
 class backGround:
 
@@ -24,7 +26,6 @@ class backGround:
         """
         subcalsses redefines this method
         """
-
     def substract(self):
         # generates background
         yLine = self.generate()
@@ -32,7 +33,6 @@ class backGround:
         y = [(y1 - y2) for (y1, y2) in zip(self.y, yLine)]
         # return the updated data
         return (self.x, y)
-        
 
 class bgLinear(backGround):
     def __init__(self, x, y, x1, y1, x2, y2):
@@ -53,60 +53,32 @@ class bgLinear(backGround):
         y = [f(X) for X in self.x]
         return y
 
-# saves the clicked x, y data
-class clickMe:
-    """
-    saves the clicked co-ordinates in `clicked`
-    aim: to removed `clicked` from global scope
-    """
-    def __init__(self):
-        self.clicked = []
-    def on_click(self, event):
-        """
-        To save the x, y data from right mouse click
-        """
-        if event.button is MouseButton.LEFT:
-            self.clicked.append((event.xdata, event.ydata))
-            print((event.xdata, event.ydata))
-
 if __name__ == '__main__':
-
-    # x, y are pd series
-    (x, y) = cropMyGraph('o1s.csv')
-
-    #pdb.set_trace()
-
-    # clear the current figure
-    plt.clf()
-
-    #pdb.set_trace()
-
-    # create a clickMe instance to save clicks
-    I = clickMe()
-    I.clicked = []
-    # catch mouse clicks
-    plt.connect('button_press_event', I.on_click)
-    
-    # plot the graph after cropping to choose the 
-    # end points for background
-    Plot(x, y).plot()
-
-    #pdb.set_trace()
-
-    input('wait for click:  \n')
-
-    #pdb.set_trace()
-
-    # pass in the clicked co-ordinates to make bg
-    # create a background fitting instance
-    I = bgLinear(x, y, *I.clicked[0], *I.clicked[1])
-    # substract the background and get the data
-    (x, y) = I.substract()
-
-    # plot the substracted x, y data
-    Plot(x,y).plot()
-    # waits - graph window disapears otherwise
-
-    save = input('y for save: ')
-    if save == 'y':
-        pickle.dump((x, y), open('o1s.pkl', 'wb'))
+    try:
+        datafile = sys.argv[1]
+    except Exception:
+        print('Usage: python3 substractbackground.py data.csv')
+        print(sys.exc_info())
+    else:
+        plt.ion()
+        datafile = os.path.basename(datafile)
+        ext = datafile.split('.')[1]
+        if ext == 'csv':
+            x, y = xyfromcsv(datafile)
+        else:
+            if ext == 'xls' or ext == 'xlsx':
+                x, y = xyfromexcel(datafile)
+        Plot(x, y).plot()
+        # endpoints (x1, y1), (x2, y2)
+        print('enter bg endpoints')
+        x1 = float(input('x1: '))
+        y1 = float(input('y1: '))
+        x2 = float(input('x2: '))
+        y2 = float(input('y2: '))
+        I = bgLinear(x, y, x1, y1, x2, y2)
+        x, y = I.substract()
+        df = pd.DataFrame()
+        df['x'] = x; df['y'] = y
+        df.to_excel('bgcut'+datafile, index=False)
+        Plot(x,y).plot()
+        input('Enter to Quit: ')

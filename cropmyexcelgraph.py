@@ -8,20 +8,13 @@ import matplotlib.pyplot as plt
 plt.ion()
 import sys
 from matplotlib.backend_bases import MouseButton
-from xyfromfile import xyfromfile
-import sys
-import os
 
-def cropIt(x, y, xmin, xmax):
+def cropIt(df, xmin, xmax):
     # exclude values less than xmin
-    y = y[x > xmin]
+    df = df[df['x'] > xmin]
     # exclude values greater than xmax
-    y = y[x  < xmax]
-    # exclude values less than xmin
-    x = x[x > xmin]
-    # exclude values greater than xmax
-    x = x[x  < xmax]
-    return x, y
+    df = df[df['x'] < xmax]
+    return df
 
 # saves the clicked x, y data
 class clickMe:
@@ -44,14 +37,19 @@ def cropMyGraph(data):
     I = clickMe()
     # set up matplotlib for catching mouse clicks
     plt.connect('button_press_event', I.on_click)
-    # read the file
-    x, y = xyfromfile(data)
+    # read the csv file
+    df = pd.read_excel(data)
+    # picking up first two columns of df
+    df = df[[df.columns[0], df.columns[1]]]
+    # rewrite the column names for ease of
+    # plotting
+    df.columns = ['x', 'y']
     while True:
         # turn stdin on
-        plt.plot(x, y)
+        plt.plot(df['x'], df['y'])
         plt.show()
         # wait to choose the end points
-        wait = input('choose crop points and press enter; \nq to quit: \n')
+        wait = input('choose crop points and press enter; then q to quit: \n')
         # breakout of the infinite loop
         if wait == 'q': break
         # visualy inspect graph and click suitable
@@ -61,25 +59,21 @@ def cropMyGraph(data):
         # clear I.clicked for further use
         I.clicked = []
         # call cropIt with suitable crop points
-        x, y = cropIt(x, y, float(xmin), float(xmax))
-    df = pd.DataFrame()
-    df['x']=x ; df['y'] = y
-    file_noext = os.path.basename(data).split('.')[0]
-    df.to_excel('trim'+ file_noext + '.xlsx', index=False)
-    return (x, y)
+        df = cropIt(df, float(xmin), float(xmax))
+        df.to_excel('trim_'+data, index=False)
+        print('cropped data saved @ ', 'trim_'+data)
+
+    return (df['x'], df['y'])
 
 # run as a top-level file by reading
 # data as commnadline argument
 if __name__ == '__main__':
     # help command line option
-    try:
-        datafile = sys.argv[1] or 'o1s.csv'
-    except Exception:
-        print('Usage:  cropmygraph.py mydata.ext ')
-        print(sys.exc_info())
+    if sys.argv[1] == '-h':
+        print('Usage:  cropmyexcelgraph.py mydata.xslx ')
     else:
         # visualize the data and choose crop points
         # the returned df will be a cropped graph
         data = sys.argv[1]
         # data --> o1s.csv 
-        (x, y) = cropMyGraph(data)
+        x, y = cropMyGraph(data)
