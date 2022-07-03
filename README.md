@@ -15,7 +15,12 @@ The testdata.xlsx is the excel xps data file.  The first two columns are respect
 The testguess.xlsx contains the guess values for the peaks.  The first three columns are respectively intensity, binding energy and peak width (fwhm).
 
 ## Screenshots
-Selecting data region and background substraction:
+Selecting data region:
+
+![alt text](https://github.com/jithesh82/xps/blob/main/select.png)
+
+Background substraction:
+
 ![alt text](https://github.com/jithesh82/xps/blob/main/selectbgsub.png)
 
 Fitting:
