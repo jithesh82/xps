@@ -17,7 +17,9 @@ The testguess.xlsx contains the guess values for the peaks.  The first three col
 ## Screenshots
 Selecting data region and background substraction:
 ![alt text](https://github.com/jithesh82/xps/blob/main/selectbgsub.png)
+
 Fitting:
+
 ![alt text](https://github.com/jithesh82/xps/blob/main/fitexample.png)
 
 ## References
