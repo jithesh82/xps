@@ -36,11 +36,6 @@ def multiGauss(x, *par):
     # (i, j, k) for three parameters
     def term(X, i, j, k): 
         return par[i] * math.exp(- (X - par[j])**2 / (2 * par[k]**2))
-    #print('par: ', par)
-    #print(x)
-    #print('term: ', term(2, 0, 1, 2))
-
-    #pdb.set_trace()
 
     split = []
     # split [0..9] --> [0, 1, 2], [3, 4, 5] etc.
@@ -50,12 +45,9 @@ def multiGauss(x, *par):
         split_ = list(range(i, i + 3))
         # split --> [[0, 1, 2], ...]
         split.append(split_)
+
     # create multi-equation with multiple gaussian
     # terms as a sum
-    
-    #print(split)
-    #pdb.set_trace()
-
     def multiterm(X):
         """
         sum all the terms in the gaussian
@@ -63,7 +55,6 @@ def multiGauss(x, *par):
         return sum((term(X, i, j, k) for (i, j, k) in \
                 split))    
 
-    #print('multiterm2: ', multiterm(2))
     # sum the terms over the entire x range 
     return [multiterm(X) for X in x]
 
